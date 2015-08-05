@@ -81,3 +81,13 @@ body {
     border-bottom: 0;
   }
 }
+
+.form-group.required .control-label:after {
+  content: "*";
+  margin-left: 8px;: width : ;
+  color: red;
+}
+
+table {
+  width: 100%;
+}
