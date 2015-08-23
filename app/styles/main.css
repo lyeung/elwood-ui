@@ -88,6 +88,11 @@ body {
   color: red;
 }
 
+.log-info {
+  font-family: "Courier New", Courier, monospace;
+  font-size: x-small;
+}
+
 table {
   width: 100%;
 }

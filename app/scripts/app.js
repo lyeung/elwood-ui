@@ -17,11 +17,6 @@ angular
     'ngSanitize',
     'ngTouch'
   ])
-  .config(['$httpProvider', function($httpProvider) {
-    //$httpProvider.defaults.useXDomain = true;
-    //$httpProvider
-    //$httpProvider.defaults.headers.common['Access-Control-Allow-Headers'] = '*';
-  }])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
