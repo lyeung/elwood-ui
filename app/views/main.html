@@ -22,7 +22,7 @@
   <p>Spectacular Test Runner for JavaScript.</p>
 
   <div class="" ng-controller="ProjectsCtrl">
-    <div class="row">
+    <div class="row" ng-controller="RunBuildJobCtrl">
       <table class="table-striped">
         <thead>
         <tr>
@@ -36,9 +36,13 @@
           <td>{{p.key}}</td>
           <td>{{p.name}}</td>
           <td>{{p.description}}</td>
+          <td ><a href="#" ng-click="build(p); $event.stopPropagation();">Build</a></td>
         </tr>
         </tbody>
       </table>
+      <div class="log-info" ng-repeat="i in buildLog">
+        {{i}}
+      </div>
       <div ng-show="isNoProjectItems()">No projects found</div>
     </div>
   </div>

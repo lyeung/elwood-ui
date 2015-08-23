@@ -11,24 +11,31 @@
  * Controller of the elwoodUiApp
  */
 angular.module('elwoodUiApp')
-  .constant('ArticleUrl', 'http://localhost:8080/article/:key')
+  .constant('BuildJobUrl', 'http://localhost:8080/buildJob/:key')
+  .constant('RunBuildJobUrl', 'http://localhost:8080/runBuildJob/:key')
   .constant('ProjectsUrl', 'http://localhost:8080/projects/:pageNumber')
-  .factory('ArticleResource', function($resource, ArticleUrl) {
-    return $resource(ArticleUrl, {}, {
+  .factory('BuildJobResource', function($resource, BuildJobUrl) {
+    return $resource(BuildJobUrl, {}, {
       'get': { method: 'GET', timeout: 2000 },
-      'save': { method: 'POST', timeout: 2000 }
+      'save': { method: 'POST'}//, timeout: 2000 }
+    });
+  })
+  .factory('RunBuildJobResource', function($resource, RunBuildJobUrl) {
+    return $resource(RunBuildJobUrl, {}, {
+      'get': { method: 'GET'},//, timeout: 2000 },
+      'build': { method: 'POST'}//, timeout: 2000 }
     });
   })
   .factory('ProjectsResource', function($resource, ProjectsUrl) {
     return $resource(ProjectsUrl, {}, {
       'get': { method: 'GET', timeout: 2000 }
-    })
+    });
   })
   .controller('ProjectsCtrl', function($scope, ProjectsResource) {
     var newModel = function() {
       return {
         'projects': []
-      }
+      };
     };
 
     $scope.model = newModel();
@@ -45,8 +52,8 @@ angular.module('elwoodUiApp')
       return !$scope.model.projects.length;
     };
   })
-  .controller('ProjectCtrl', function($scope, ArticleResource) {
-    var newModel = function() {
+  .controller('BuildJobCtrl', function($scope, BuildJobResource) {
+    var newModel = function () {
       return {
         'key': '',
         'name': '',
@@ -54,19 +61,58 @@ angular.module('elwoodUiApp')
         'buildFile': '',
         'buildCommand': '',
         'environmentVars': '',
-        'workingDirectory': ''
-      }
+        'sourceUrl': '',
+        'identityKey': '',
+        'authenticationType': 'PUBLIC_KEY_PASSPHRASE',
+        'passphrase': ''
+      };
     };
 
     $scope.model = newModel();
-    $scope.getByKey = function(key) {
-      console.log(ProjectResource.get({key: key}));
+    //$scope.getByKey = function (key) {
+    //  console.log(ProjectResource.get({key: key}));
+    //};
+    $scope.saveProjectForm = function () {
+      BuildJobResource.save($scope.model, function (successResult) {
+        console.log(successResult);
+      }, function (errorResult) {
+        console.log(errorResult);
+      });
     };
-    $scope.saveProjectForm = function() {
-      ArticleResource.save($scope.model, function(successResult) {
+  })
+  .controller('RunBuildJobCtrl', function($scope, $timeout, RunBuildJobResource) {
+    $scope.buildLog = [];
+
+    $scope.build = function(project) {
+      $scope.project = project;
+      $scope.isBuilding = true;
+      $scope.lineNumber = 1;
+
+      RunBuildJobResource.build({'key': project.key},
+      function(successResult) {
         console.log(successResult);
       }, function(errorResult) {
         console.log(errorResult);
-      })
-    }
+      });
+
+      var refresh = function() {
+        RunBuildJobResource.get({key: project.key}).$promise.then(function (successResult) {
+          console.log(successResult);
+          if (successResult.content) {
+            $scope.buildLog = [];
+            angular.forEach(successResult.content.split('\n'), function(value, key) {
+              this.push(key+":" + value);
+            }, $scope.buildLog);
+          }
+          $timeout(refresh, 500);
+        }, function(errorResult) {
+          console.log(errorResult);
+          $timeout(refresh, 500);
+        });
+      };
+
+      //$interval(refresh, 10000);
+      $timeout(refresh, 3000);
+
+    };
   });
