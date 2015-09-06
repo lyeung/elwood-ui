@@ -30,23 +30,23 @@
  */
 angular.module('elwoodUiApp')
   .constant('BuildJobUrl', 'http://localhost:8080/buildJob/:key')
-  .constant('RunBuildJobUrl', 'http://localhost:8080/runBuildJob/:key')
+  .constant('RunBuildJobUrl', 'http://localhost:8080/runBuildJob/:key/:count')
   .constant('ProjectsUrl', 'http://localhost:8080/projects/:pageNumber')
   .factory('BuildJobResource', function($resource, BuildJobUrl) {
     return $resource(BuildJobUrl, {}, {
-      'get': { method: 'GET', timeout: 2000 },
-      'save': { method: 'POST'}//, timeout: 2000 }
+      'get': {method: 'GET', timeout: 2000},
+      'save': {method: 'POST'}//, timeout: 2000 }
     });
   })
   .factory('RunBuildJobResource', function($resource, RunBuildJobUrl) {
     return $resource(RunBuildJobUrl, {}, {
-      'get': { method: 'GET'},//, timeout: 2000 },
-      'build': { method: 'POST'}//, timeout: 2000 }
+      'get': {method: 'GET'},//, timeout: 2000 },
+      'build': {method: 'POST'}//, timeout: 2000 }
     });
   })
   .factory('ProjectsResource', function($resource, ProjectsUrl) {
     return $resource(ProjectsUrl, {}, {
-      'get': { method: 'GET', timeout: 2000 }
+      'get': {method: 'GET', timeout: 2000}
     });
   })
   .controller('ProjectsCtrl', function($scope, ProjectsResource) {
@@ -102,35 +102,39 @@ angular.module('elwoodUiApp')
     $scope.buildLog = [];
 
     $scope.build = function(project) {
-      $scope.project = project;
-      $scope.isBuilding = true;
-      $scope.lineNumber = 1;
-
+      var keyCount = {};
       RunBuildJobResource.build({'key': project.key},
-      function(successResult) {
-        console.log(successResult);
-      }, function(errorResult) {
-        console.log(errorResult);
-      });
+        function (successResult) {
+          console.log(successResult);
+          keyCount = successResult.keyCountTuple;
+        }, function (errorResult) {
+          console.log(errorResult);
+        });
 
       var refresh = function() {
-        RunBuildJobResource.get({key: project.key}).$promise.then(function (successResult) {
+        RunBuildJobResource.get({key: keyCount.key, count: keyCount.count}).$promise.then(function (successResult) {
           console.log(successResult);
-          if (successResult.content) {
-            $scope.buildLog = [];
-            angular.forEach(successResult.content.split('\n'), function(value, key) {
-              this.push(key+":" + value);
-            }, $scope.buildLog);
+          if (successResult.status === 'RUNNING') {
+            if (successResult.content) {
+              $scope.buildLog = [];
+              angular.forEach(successResult.content.split('\n'), function (value, key) {
+                this.push(key + ":" + value);
+              }, $scope.buildLog);
+            } else {
+              console.log('redirecting ' + successResult.status + ': ' + successResult.redirectUrl);
+            }
+            $timeout(refresh, 500);
+          } else {
+            console.log(successResult);
           }
-          $timeout(refresh, 500);
         }, function(errorResult) {
           console.log(errorResult);
           $timeout(refresh, 500);
         });
       };
 
-      //$interval(refresh, 10000);
-      $timeout(refresh, 3000);
-
+      if (keyCount) {
+        $timeout(refresh, 3000);
+      }
     };
   });
