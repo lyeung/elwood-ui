@@ -101,6 +101,37 @@ angular.module('elwoodUiApp')
   .controller('RunBuildJobCtrl', function($scope, $timeout, RunBuildJobResource) {
     $scope.buildLog = [];
 
+    $scope.buildJobRefreshSuccessCallback = function(successResult) {
+      console.log(successResult);
+      if (successResult.status === 'RUNNING') {
+        if (successResult.content) {
+          $scope.buildLog = [];
+          angular.forEach(successResult.content.split('\n'), function (value, key) {
+            this.push(key + ":" + value);
+          }, $scope.buildLog);
+        } else {
+          console.log('redirecting ' + successResult.status + ': ' + successResult.redirectUrl);
+        }
+        $timeout($scope.refreshBuildJob, 500);
+      } else {
+        console.log(successResult);
+      }
+    };
+
+    $scope.buildJobRefreshErrorCallback = function(errorResult) {
+      console.log(errorResult);
+      timeout($scope.refreshBuildJob, 500);
+    };
+
+    $scope.refreshBuildJob = function() {
+      RunBuildJobResource.get({key: keyCount.key, count: keyCount.count}).$promise.then(
+        function(successResult) {
+          return $scope.buildJobRefreshSuccessCallback(successResult);
+        }, function(errorResult) {
+          return $scope.buildJobRefreshErrorCallback(errorResult);
+        });
+    };
+
     $scope.build = function(project) {
       var keyCount = {};
       RunBuildJobResource.build({'key': project.key},
@@ -109,32 +140,11 @@ angular.module('elwoodUiApp')
           keyCount = successResult.keyCountTuple;
         }, function (errorResult) {
           console.log(errorResult);
-        });
-
-      var refresh = function() {
-        RunBuildJobResource.get({key: keyCount.key, count: keyCount.count}).$promise.then(function (successResult) {
-          console.log(successResult);
-          if (successResult.status === 'RUNNING') {
-            if (successResult.content) {
-              $scope.buildLog = [];
-              angular.forEach(successResult.content.split('\n'), function (value, key) {
-                this.push(key + ":" + value);
-              }, $scope.buildLog);
-            } else {
-              console.log('redirecting ' + successResult.status + ': ' + successResult.redirectUrl);
-            }
-            $timeout(refresh, 500);
-          } else {
-            console.log(successResult);
-          }
-        }, function(errorResult) {
-          console.log(errorResult);
-          $timeout(refresh, 500);
-        });
-      };
+        }
+      );
 
       if (keyCount) {
-        $timeout(refresh, 3000);
+        $timeout($scope.refreshBuildJob, 3000);
       }
     };
   });
