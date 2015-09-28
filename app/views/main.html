@@ -1,26 +1,4 @@
-<div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Always a pleasure scaffolding your apps.
-  </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#/">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
-</div>
-
 <div class="row marketing">
-  <h4>HTML5 Boilerplate</h4>
-  <p>
-    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
-  </p>
-
-  <h4>Angular</h4>
-  <p>
-    AngularJS is a toolset for building the framework most suited to your application development.
-  </p>
-
-  <h4>Karma</h4>
-  <p>Spectacular Test Runner for JavaScript.</p>
-
   <div class="" ng-controller="ProjectsCtrl">
     <div class="row" ng-controller="RunBuildJobCtrl">
       <table class="table-striped">
@@ -33,17 +11,27 @@
         </thead>
         <tbody>
         <tr ng-repeat="p in model.projects">
-          <td>{{p.key}}</td>
+          <td>{{p.key.key}}</td>
           <td>{{p.name}}</td>
           <td>{{p.description}}</td>
           <td ><a href="#" ng-click="build(p); $event.stopPropagation();">Build</a></td>
         </tr>
         </tbody>
       </table>
-      <div class="log-info" ng-repeat="i in buildLog">
-        {{i}}
-      </div>
       <div ng-show="isNoProjectItems()">No projects found</div>
+
+      <button ng-click="addDiagnostics()">Add</button>
+      <button ng-click="getDiagnostics()">Diagnostics</button>
+      <textarea ng-model="diagnostics"></textarea>
+
+      <div ng-repeat="(key, keyCount) in buildKeys">
+        <div ng-repeat="kc in keyCount">
+          <h4>{{kc}}</h4>
+          <div class="log-info" ng-repeat="line in buildLog[kc]">
+            {{line}}<br/>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

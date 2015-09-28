@@ -78,52 +78,52 @@ describe('Controller: ProjectCtrl', function () {
   });
 
 
-  describe('RunBuildJobCtrl', function() {
-    var BuildArticleCtrl,
-      timeout,
-      runBuildJobResource;
-
-    // Initialize the controller and a mock scope
-    beforeEach(inject(function ($controller, $rootScope, $timeout, $httpBackend, RunBuildJobResource) {
-      scope = $rootScope.$new();
-      runBuildJobResource = RunBuildJobResource;
-      timeout = $timeout;
-      httpBackend = $httpBackend;
-      BuildArticleCtrl = $controller('RunBuildJobCtrl', {
-        $scope: scope,
-        RunBuildJobResource: runBuildJobResource
-      });
-    }));
-
-    it('should run build job', function() {
-      var buildUrl = 'http://localhost:8080/runBuildJob';
-      var buildLogUrl = 'http://localhost:8080/runBuildJob/KEY123';
-      var mockData = {
-        'key': 'KEY123'
-      };
-
-      scope.project = mockData;
-
-      httpBackend.when('POST', buildUrl).respond(mockData);
-      httpBackend.when('GET', buildLogUrl).respond("hello\nworld");
-
-      expect(scope.buildLog).not.toBeNull();
-      expect(scope.buildLog.length).toBeFalsy();
-
-      scope.build(scope.project);
-
-      httpBackend.flush();
-
-      // TODO: add tests to trigger timer
-      //timeout.flush();
-
-      //expect(scope.buildLog.length).toEqual(2);
-      //expect(scope.buildLog).toContain("1:hello");
-      //expect(scope.buildLog).toContain("2:world");
-
-
-      httpBackend.verifyNoOutstandingExpectation();
-      httpBackend.verifyNoOutstandingRequest();
-    });
-  });
+  //describe('RunBuildJobCtrl', function() {
+  //  var BuildArticleCtrl,
+  //    timeout,
+  //    runBuildJobResource;
+  //
+  //  // Initialize the controller and a mock scope
+  //  beforeEach(inject(function ($controller, $rootScope, $timeout, $httpBackend, RunBuildJobResource) {
+  //    scope = $rootScope.$new();
+  //    runBuildJobResource = RunBuildJobResource;
+  //    timeout = $timeout;
+  //    httpBackend = $httpBackend;
+  //    BuildArticleCtrl = $controller('RunBuildJobCtrl', {
+  //      $scope: scope,
+  //      RunBuildJobResource: runBuildJobResource
+  //    });
+  //  }));
+  //
+  //  it('should run build job', function() {
+  //    var buildUrl = 'http://localhost:8080/runBuildJob';
+  //    var buildLogUrl = 'http://localhost:8080/runBuildJob/KEY123';
+  //    var mockData = {
+  //      'key': 'KEY123'
+  //    };
+  //
+  //    scope.project = mockData;
+  //
+  //    httpBackend.when('POST', buildUrl).respond(mockData);
+  //    httpBackend.when('GET', buildLogUrl).respond("hello\nworld");
+  //
+  //    expect(scope.buildLog).not.toBeNull();
+  //    expect(scope.buildLog.length).toBeFalsy();
+  //
+  //    scope.build(scope.project);
+  //
+  //    httpBackend.flush();
+  //
+  //    // TODO: add tests to trigger timer
+  //    //timeout.flush();
+  //
+  //    //expect(scope.buildLog.length).toEqual(2);
+  //    //expect(scope.buildLog).toContain("1:hello");
+  //    //expect(scope.buildLog).toContain("2:world");
+  //
+  //
+  //    httpBackend.verifyNoOutstandingExpectation();
+  //    httpBackend.verifyNoOutstandingRequest();
+  //  });
+  //});
 });
