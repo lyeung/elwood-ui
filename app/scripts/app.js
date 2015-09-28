@@ -26,7 +26,7 @@ angular
       })
       .when('/project', {
         templateUrl: 'views/project.html',
-        controller: 'ProjectCtrl',
+        controller: 'BuildJobCtrl',
         controllerAs: 'project'
       })
       .when('/about', {

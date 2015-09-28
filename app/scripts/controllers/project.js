@@ -30,7 +30,7 @@
  */
 angular.module('elwoodUiApp')
   .constant('BuildJobUrl', 'http://localhost:8080/buildJob/:key')
-  .constant('RunBuildJobUrl', 'http://localhost:8080/runBuildJob/:key/:count')
+  //.constant('RunBuildJobUrl', 'http://localhost:8080/runBuildJob/:key/:count')
   .constant('ProjectsUrl', 'http://localhost:8080/projects/:pageNumber')
   .factory('BuildJobResource', function($resource, BuildJobUrl) {
     return $resource(BuildJobUrl, {}, {
@@ -87,64 +87,11 @@ angular.module('elwoodUiApp')
     };
 
     $scope.model = newModel();
-    //$scope.getByKey = function (key) {
-    //  console.log(ProjectResource.get({key: key}));
-    //};
     $scope.saveProjectForm = function () {
       BuildJobResource.save($scope.model, function (successResult) {
         console.log(successResult);
       }, function (errorResult) {
         console.log(errorResult);
       });
-    };
-  })
-  .controller('RunBuildJobCtrl', function($scope, $timeout, RunBuildJobResource) {
-    $scope.buildLog = [];
-
-    $scope.buildJobRefreshSuccessCallback = function(successResult) {
-      console.log(successResult);
-      if (successResult.status === 'RUNNING') {
-        if (successResult.content) {
-          $scope.buildLog = [];
-          angular.forEach(successResult.content.split('\n'), function (value, key) {
-            this.push(key + ":" + value);
-          }, $scope.buildLog);
-        } else {
-          console.log('redirecting ' + successResult.status + ': ' + successResult.redirectUrl);
-        }
-        $timeout($scope.refreshBuildJob, 500);
-      } else {
-        console.log(successResult);
-      }
-    };
-
-    $scope.buildJobRefreshErrorCallback = function(errorResult) {
-      console.log(errorResult);
-      timeout($scope.refreshBuildJob, 500);
-    };
-
-    $scope.refreshBuildJob = function() {
-      RunBuildJobResource.get({key: keyCount.key, count: keyCount.count}).$promise.then(
-        function(successResult) {
-          return $scope.buildJobRefreshSuccessCallback(successResult);
-        }, function(errorResult) {
-          return $scope.buildJobRefreshErrorCallback(errorResult);
-        });
-    };
-
-    $scope.build = function(project) {
-      var keyCount = {};
-      RunBuildJobResource.build({'key': project.key},
-        function (successResult) {
-          console.log(successResult);
-          keyCount = successResult.keyCountTuple;
-        }, function (errorResult) {
-          console.log(errorResult);
-        }
-      );
-
-      if (keyCount) {
-        $timeout($scope.refreshBuildJob, 3000);
-      }
     };
   });
