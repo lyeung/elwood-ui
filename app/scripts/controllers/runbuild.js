@@ -2,14 +2,14 @@
  *
  *  Copyright (C) 2015 the original author or authors.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  Licensed under the Apache License, Version 2.0 (the 'License');
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
  *  http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  distributed under the License is distributed on an 'AS IS' BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
@@ -40,24 +40,32 @@ app.controller('RunBuildJobCtrl', function ($scope, $timeout, RunBuildJobResourc
       }, timerInMillis);
     };
 
+    var isStatusDone = function (status) {
+      return status === 'SUCCESS' || status === 'FAILED';
+    };
+
+    var toKeyCount = function (keyCount) {
+      return keyCount.key + '-' + keyCount.count;
+    };
+
     $scope.buildJobRefreshSuccessCallback = function (successResult) {
       if (successResult.status === 'RUNNING') {
         if (successResult.content) {
           var lines = [];
           angular.forEach(successResult.content.split('\n'), function (value, key) {
-            this.push(key + ":" + value);
+            this.push(key + ':' + value);
           }, lines);
-          var keyCountStr = successResult.keyCount.key + '-' + successResult.keyCount.count;
+          //var keyCountStr = successResult.keyCount.key + '-' + successResult.keyCount.count;
           console.log(lines);
-          $scope.buildLog[keyCountStr] = lines;
+          $scope.buildLog[toKeyCount(successResult.keyCount)] = lines;
         } else {
           console.log('redirecting ' + successResult.status + ': ' + successResult.redirectUrl);
         }
         invokeRefreshTimer(successResult.keyCount, 500);
-      } else if (successResult.status === 'SUCCESS') {
+      } else if (isStatusDone(successResult.status)) {
         console.log(successResult);
         var keyCount = successResult.keyCount;
-        var keyCountStr = keyCount.key + '-' + keyCount.count;
+        var keyCountStr = toKeyCount(keyCount);
         if (keyCountStr in $scope.buildLog) {
           delete $scope.buildLog[keyCountStr];
         } else {
@@ -99,7 +107,7 @@ app.controller('RunBuildJobCtrl', function ($scope, $timeout, RunBuildJobResourc
         function (successResult) {
           console.log(successResult);
           var keyCount = successResult.keyCountTuple;
-          var keyCountStr = keyCount.key + "-" + keyCount.count;
+          var keyCountStr = keyCount.key + '-' + keyCount.count;
           $scope.buildKeys[keyCount.key] = [];
           $scope.buildKeys[keyCount.key].push(keyCountStr);
           invokeRefreshTimer(keyCount, 3000);
@@ -117,24 +125,24 @@ app.controller('RunBuildJobCtrl', function ($scope, $timeout, RunBuildJobResourc
 
       str += '\nlog=';
       angular.forEach($scope.buildLog, function (value, key) {
-        str += key + ':' + value + ','
+        str += key + ':' + value + ',';
       });
       $scope.diagnostics = str;
     };
 
-    $scope.addDiagnostics = function () {
-      $scope.buildKeys['ELWP'] = [];
-      $scope.buildKeys['ELWP'].push("ELWP-10");
-      $scope.buildKeys['ELWP'].push("ELWP-11");
-      $scope.buildKeys['WA'] = [];
-      $scope.buildKeys['WA'].push("WA-30");
-      $scope.buildLog['ELWP-10'] = [];
-      $scope.buildLog['ELWP-10'].push("HOLA");
-      $scope.buildLog['ELWP-10'].push("HELLO");
-      $scope.buildLog['ELWP-11'] = [];
-      $scope.buildLog['ELWP-11'].push("WORLD");
-      $scope.buildLog['WA-30'] = [];
-      $scope.buildLog['WA-30'].push("MUNDO");
-    }
+    //$scope.addDiagnostics = function () {
+    //  $scope.buildKeys['ELWP'] = [];
+    //  $scope.buildKeys['ELWP'].push('ELWP-10');
+    //  $scope.buildKeys['ELWP'].push('ELWP-11');
+    //  $scope.buildKeys['WA'] = [];
+    //  $scope.buildKeys['WA'].push('WA-30');
+    //  $scope.buildLog['ELWP-10'] = [];
+    //  $scope.buildLog['ELWP-10'].push('HOLA');
+    //  $scope.buildLog['ELWP-10'].push('HELLO');
+    //  $scope.buildLog['ELWP-11'] = [];
+    //  $scope.buildLog['ELWP-11'].push('WORLD');
+    //  $scope.buildLog['WA-30'] = [];
+    //  $scope.buildLog['WA-30'].push('MUNDO');
+    //};
   }
 ) ;
