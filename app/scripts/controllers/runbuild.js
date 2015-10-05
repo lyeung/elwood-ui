@@ -25,92 +25,26 @@ var app = angular.module('elwoodUiApp')
   .factory('RunBuildJobResource', function ($resource, RunBuildJobUrl) {
     return $resource(RunBuildJobUrl, {}, {
       'get': {method: 'GET'},//, timeout: 2000 },
-      'build': {method: 'POST'}//, timeout: 2000 }
+      'build': {method: 'POST'} //timeout: 2000 }
     });
   });
 
-
 app.controller('RunBuildJobCtrl', function ($scope, $timeout, RunBuildJobResource) {
-    $scope.buildKeys = {};
-    $scope.buildLog = {};
-
-    var invokeRefreshTimer = function (keyCount, timerInMillis) {
-      $timeout(function () {
-        $scope.refreshBuildJob(keyCount);
-      }, timerInMillis);
-    };
-
-    var isStatusDone = function (status) {
-      return status === 'SUCCESS' || status === 'FAILED';
-    };
-
-    var toKeyCount = function (keyCount) {
-      return keyCount.key + '-' + keyCount.count;
-    };
-
-    $scope.buildJobRefreshSuccessCallback = function (successResult) {
-      if (successResult.status === 'RUNNING') {
-        if (successResult.content) {
-          var lines = [];
-          angular.forEach(successResult.content.split('\n'), function (value, key) {
-            this.push(key + ':' + value);
-          }, lines);
-          //var keyCountStr = successResult.keyCount.key + '-' + successResult.keyCount.count;
-          console.log(lines);
-          $scope.buildLog[toKeyCount(successResult.keyCount)] = lines;
-        } else {
-          console.log('redirecting ' + successResult.status + ': ' + successResult.redirectUrl);
-        }
-        invokeRefreshTimer(successResult.keyCount, 500);
-      } else if (isStatusDone(successResult.status)) {
-        console.log(successResult);
-        var keyCount = successResult.keyCount;
-        var keyCountStr = toKeyCount(keyCount);
-        if (keyCountStr in $scope.buildLog) {
-          delete $scope.buildLog[keyCountStr];
-        } else {
-          console.error('unable to find ' + keyCountStr + ' from buildLog');
-        }
-
-        if (keyCount.key in $scope.buildKeys) {
-          var keyCounts = $scope.buildKeys[keyCount.key];
-          var indexElem = keyCounts.indexOf(keyCountStr);
-          if (indexElem > -1) {
-            keyCounts.splice(indexElem, 1);
-          }
-
-          if (!$scope.buildKeys.length) {
-            delete $scope.buildKeys[keyCount.key];
-          }
-        } else {
-          console.error('unable fo find ' + keyCountStr + ' from buildKeys');
-        }
-      }
-    };
-
-    $scope.buildJobRefreshErrorCallback = function (errorResult, keyCount) {
-      console.log(errorResult);
-      invokeRefreshTimer(keyCount, 500);
-    };
-
-    $scope.refreshBuildJob = function (keyCount) {
-      RunBuildJobResource.get({key: keyCount.key, count: keyCount.count}).$promise.then(
-        function (successResult) {
-          return $scope.buildJobRefreshSuccessCallback(successResult);
-        }, function (errorResult) {
-          return $scope.buildJobRefreshErrorCallback(errorResult, keyCount);
-        });
-    };
-
     $scope.build = function (project) {
       RunBuildJobResource.build({'key': project.key.key},
         function (successResult) {
           console.log(successResult);
           var keyCount = successResult.keyCountTuple;
           var keyCountStr = keyCount.key + '-' + keyCount.count;
-          $scope.buildKeys[keyCount.key] = [];
+          if (!$scope.buildKeys[keyCount.key]) {
+            $scope.buildKeys[keyCount.key] = [];
+          }
+
           $scope.buildKeys[keyCount.key].push(keyCountStr);
-          invokeRefreshTimer(keyCount, 3000);
+          //invokeRefreshTimer(keyCount, 3000);
+          $timeout(function () {
+            $scope.refreshBuildJob(keyCount);
+          }, 3000);
         }, function (errorResult) {
           console.log(errorResult);
         }

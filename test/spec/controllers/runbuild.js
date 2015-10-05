@@ -32,29 +32,39 @@ describe('Controller: RunBuildJobCtrl', function () {
     httpBackend;
 
   describe('RunBuildJobCtrl', function () {
-    var BuildArticleCtrl,
+    var RunBuildJobCtrl,
+      CommonCtrl,
+      toKeyCount,
       timeout,
       runBuildJobResource;
 
     // Initialize the controller and a mock scope
-    beforeEach(inject(function ($controller, $rootScope, $timeout, $httpBackend, RunBuildJobResource) {
+    beforeEach(inject(function ($controller, $rootScope, $timeout, $httpBackend,
+                                RunBuildJobResource, ToKeyCount) {
       scope = $rootScope.$new();
       runBuildJobResource = RunBuildJobResource;
       timeout = $timeout;
+      toKeyCount = ToKeyCount;
       httpBackend = $httpBackend;
-      BuildArticleCtrl = $controller('RunBuildJobCtrl', {
+      CommonCtrl = $controller('CommonCtrl', {
         $scope: scope,
+        $timeout: timeout,
+        RunBuildJobResource: runBuildJobResource,
+        ToKeyCount: toKeyCount
+      });
+      RunBuildJobCtrl = $controller('RunBuildJobCtrl', {
+        $scope: scope,
+        $timeout: timeout,
         RunBuildJobResource: runBuildJobResource
       });
     }));
 
     it('should run build job', function () {
       var buildUrl = 'http://localhost:8080/runBuildJob';
-      var buildLogUrl = 'http://localhost:8080/runBuildJob/KEY/123';
+      //var buildLogUrl = 'http://localhost:8080/runBuildJob/KEY/123';
       var key = {
         'key': 'KEY'
       };
-
       scope.project = key;
 
       var mockBuildJobResponse = {
@@ -65,28 +75,29 @@ describe('Controller: RunBuildJobCtrl', function () {
       };
       httpBackend.when('POST', buildUrl).respond(mockBuildJobResponse);
 
-      var mockGetBuildJobResponse = {
-        'keyCount': {
-          'key': 'KEY',
-          'count': 123
-        },
-        'status': 'SUCCESS',
-        'content': 'hello\nworld',
-        'redirectUrl': ''
-      };
-      httpBackend.when('GET', buildLogUrl).respond(mockGetBuildJobResponse);
+      //var mockGetBuildJobResponse = {
+      //  'keyCount': {
+      //    'key': 'KEY',
+      //    'count': 123
+      //  },
+      //  'status': 'SUCCESS',
+      //  'content': 'hello\nworld',
+      //  'redirectUrl': ''
+      //};
+      //httpBackend.when('GET', buildLogUrl).respond(mockGetBuildJobResponse);
 
       expect(scope.buildLog).not.toBeNull();
-      expect(scope.buildLog.length).toBeFalsy();
+      //expect(scope.buildLog.length).toBeFalsy();
 
       scope.build(scope.project);
+      //scope.build(scope.project);
 
       httpBackend.flush();
 
       // TODO: add tests to trigger timer
       //timeout.flush();
 
-      //expect(scope.buildLog.length).toEqual(2);
+      //expect(scope.buildKeys.length).toEqual(2);
       //expect(scope.buildLog).toContain("1:hello");
       //expect(scope.buildLog).toContain("2:world");
 
