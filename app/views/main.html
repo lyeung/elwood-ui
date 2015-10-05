@@ -14,7 +14,7 @@
           <td>{{p.key.key}}</td>
           <td>{{p.name}}</td>
           <td>{{p.description}}</td>
-          <td ><a href="#" ng-click="build(p); $event.stopPropagation();">Build</a></td>
+          <td ><a href="#" ng-click="build(p); $event.stopPropagation(); $event.preventDefault();">Build</a></td>
         </tr>
         </tbody>
       </table>
