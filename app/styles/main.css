@@ -96,3 +96,20 @@ body {
 table {
   width: 100%;
 }
+
+.key {
+  float: left;
+  width: 200px;
+}
+.name {
+  float: left;
+  width: 200px;
+}
+.description {
+  float: left;
+  width: 200px;
+}
+.build {
+  float: right;
+  width: 100px;
+}

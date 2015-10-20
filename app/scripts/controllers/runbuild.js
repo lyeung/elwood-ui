@@ -41,9 +41,11 @@ app.controller('RunBuildJobCtrl', function ($scope, $timeout, RunBuildJobResourc
           }
 
           $scope.buildKeys[keyCount.key].push(keyCountStr);
-          //invokeRefreshTimer(keyCount, 3000);
+          //$scope.initBuildKeys(keyCount.key, $scope.model);
+          $scope.addBuildResult(successResult.buildResultResponse, $scope.model);
+
           $timeout(function () {
-            $scope.refreshBuildJob(keyCount);
+            $scope.refreshBuildJob(keyCount, $scope.model);
           }, 3000);
         }, function (errorResult) {
           console.log(errorResult);

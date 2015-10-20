@@ -49,35 +49,12 @@ angular.module('elwoodUiApp')
       'get': {method: 'GET', timeout: 2000}
     });
   })
-  .constant('GetBuildKeysUrl', 'http://localhost:8080/runBuildJob/buildKeys/:key')
-  .factory('GetBuildKeysResource', function($resource, GetBuildKeysUrl) {
-    return $resource(GetBuildKeysUrl, {}, {
-      'getBuildKeys': {method: 'GET'}
-    });
-  })
-  .controller('ProjectsCtrl', function($scope, ProjectsResource, GetBuildKeysResource, ToKeyCount) {
+  .controller('ProjectsCtrl', function($scope, ProjectsResource) {
     var newModel = function() {
       return {
-        'projects': []
+        'projects': [],
+        'buildResults': {}
       };
-    };
-
-    var initBuildKeys = function(key) {
-      GetBuildKeysResource.getBuildKeys({'key': key},
-        function (successResult) {
-          var key = successResult.key;
-
-          angular.forEach(successResult.keyCounts, function(elem) {
-            var keyCount = elem;
-            if (!$scope.buildKeys[keyCount.key]) {
-              $scope.buildKeys[keyCount.key] = [];
-            }
-            $scope.buildKeys[keyCount.key].push(ToKeyCount(keyCount));
-            $scope.refreshBuildJob(keyCount);
-          });
-        }, function(errorResult) {
-          console.error("error:" + errorResult);
-        });
     };
 
     $scope.model = newModel();
@@ -85,7 +62,7 @@ angular.module('elwoodUiApp')
       ProjectsResource.get({}, function(successResult) {
         $scope.model.projects = successResult.projects;
         angular.forEach($scope.model.projects, function(elem) {
-          initBuildKeys(elem.key.key);
+          $scope.initBuildKeys(elem.key.key, $scope.model);
         });
       }, function(errorResult) {
         console.log(errorResult);

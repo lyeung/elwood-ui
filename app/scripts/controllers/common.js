@@ -27,15 +27,25 @@ var app = angular.module('elwoodUiApp')
     return function (keyCount) {
       return keyCount.key + '-' + keyCount.count;
     };
+  }).constant('GetBuildResultsUrl', 'http://localhost:8080/buildResult/:key')
+  .factory('GetBuildResultsResource', function($resource, GetBuildResultsUrl) {
+    return $resource(GetBuildResultsUrl, {}, {
+      'getBuildResults': {method: 'GET'}
+    });
+  }).constant('GetBuildKeysUrl', 'http://localhost:8080/runBuildJob/buildKeys/:key')
+  .factory('GetBuildKeysResource', function($resource, GetBuildKeysUrl) {
+    return $resource(GetBuildKeysUrl, {}, {
+      'getBuildKeys': {method: 'GET'}
+    });
   });
 
-app.controller('CommonCtrl', function($scope, $timeout, RunBuildJobResource, ToKeyCount) {
+app.controller('CommonCtrl', function($scope, $timeout, RunBuildJobResource, GetBuildKeysResource, GetBuildResultsResource, ToKeyCount) {
   $scope.buildKeys = {};
   $scope.buildLog = {};
 
-  var invokeRefreshTimer = function (keyCount, timerInMillis) {
+  var invokeRefreshTimer = function (keyCount, timerInMillis, model) {
     $timeout(function () {
-      $scope.refreshBuildJob(keyCount);
+      $scope.refreshBuildJob(keyCount, model);
     }, timerInMillis);
   };
 
@@ -43,7 +53,7 @@ app.controller('CommonCtrl', function($scope, $timeout, RunBuildJobResource, ToK
     return status === 'SUCCESS' || status === 'FAILED';
   };
 
-  $scope.buildJobRefreshSuccessCallback = function (successResult) {
+  var buildJobRefreshSuccessCallback = function (successResult, model) {
     if (successResult.status === 'RUNNING') {
       if (successResult.content) {
         var lines = [];
@@ -56,13 +66,15 @@ app.controller('CommonCtrl', function($scope, $timeout, RunBuildJobResource, ToK
       } else {
         console.log('redirecting ' + successResult.status + ': ' + successResult.redirectUrl);
       }
-      invokeRefreshTimer(successResult.keyCount, 500);
+      invokeRefreshTimer(successResult.keyCount, 500, model);
     } else if (isStatusDone(successResult.status)) {
       console.log(successResult);
       var keyCount = successResult.keyCount;
       var keyCountStr = ToKeyCount(keyCount);
-      if (keyCountStr in $scope.buildLog) {
-        delete $scope.buildLog[keyCountStr];
+      if ($scope.buildLog) {
+        if (keyCountStr in $scope.buildLog) {
+         delete $scope.buildLog[keyCountStr];
+        }
       } else {
         console.error('unable to find ' + keyCountStr + ' from buildLog');
       }
@@ -74,26 +86,67 @@ app.controller('CommonCtrl', function($scope, $timeout, RunBuildJobResource, ToK
           keyCounts.splice(indexElem, 1);
         }
 
-        if (!$scope.buildKeys.length) {
+        if (!$scope.buildKeys[keyCount.key].length) {
           delete $scope.buildKeys[keyCount.key];
         }
       } else {
         console.error('unable fo find ' + keyCountStr + ' from buildKeys');
       }
+      model.buildResults[keyCount.key] = [];
+      initBuildResults(keyCount.key, model);
     }
   };
 
-  $scope.buildJobRefreshErrorCallback = function (errorResult, keyCount) {
+  var buildJobRefreshErrorCallback = function (errorResult, keyCount, model) {
     console.log(errorResult);
-    invokeRefreshTimer(keyCount, 500);
+    invokeRefreshTimer(keyCount, 500, model);
   };
 
-  $scope.refreshBuildJob = function (keyCount) {
+  $scope.refreshBuildJob = function (keyCount, model) {
     RunBuildJobResource.get({key: keyCount.key, count: keyCount.count}).$promise.then(
       function (successResult) {
-        return $scope.buildJobRefreshSuccessCallback(successResult);
+        return buildJobRefreshSuccessCallback(successResult, model);
       }, function (errorResult) {
-        return $scope.buildJobRefreshErrorCallback(errorResult, keyCount);
+        return buildJobRefreshErrorCallback(errorResult, keyCount, model);
+      });
+  };
+
+  $scope.addBuildResult = function(buildResultResponse, model) {
+    var key = buildResultResponse.keyCountTuple.key;
+    if (!model.buildResults[key]) {
+      model.buildResults[key] = [];
+    }
+
+    model.buildResults[key].push(buildResultResponse);
+  };
+
+  var initBuildResults = function(key, model) {
+    GetBuildResultsResource.getBuildResults({'key': key}, function (successResult) {
+      angular.forEach(successResult.buildResultResponses, function(elem) {
+        $scope.addBuildResult(elem, model);
+      });
+    }, function (errorResult) {
+      console.error('error: ' + errorResult);
+    });
+  };
+
+  $scope.initBuildKeys = function(key, model) {
+    GetBuildKeysResource.getBuildKeys({'key': key},
+      function (successResult) {
+        var key = successResult.key.key;
+
+        angular.forEach(successResult.keyCounts, function(elem) {
+          var keyCount = elem;
+          if (!$scope.buildKeys[keyCount.key]) {
+            $scope.buildKeys[keyCount.key] = [];
+          }
+          $scope.buildKeys[keyCount.key].push(ToKeyCount(keyCount));
+          $scope.refreshBuildJob(keyCount, model);
+        });
+
+        initBuildResults(key, model);
+      }, function(errorResult) {
+        console.error("error:" + errorResult);
       });
   };
 });

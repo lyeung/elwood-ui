@@ -61,19 +61,29 @@ describe('Controller: RunBuildJobCtrl', function () {
 
     it('should run build job', function () {
       var buildUrl = 'http://localhost:8080/runBuildJob';
-      //var buildLogUrl = 'http://localhost:8080/runBuildJob/KEY/123';
       var key = {
         'key': 'KEY'
       };
+      scope.model = {};
+      scope.model.buildResults = [];
       scope.project = key;
 
-      var mockBuildJobResponse = {
+      var mockRunBuildJobResponse = {
         'keyCountTuple': {
           'key': 'KEY',
           'count': 123
+        },
+        'buildResultResponse': {
+          'keyCountTuple': {
+            'key': 'KEY',
+            'count': 123
+          },
+          'buildStatus': 'IN_PROGRESS',
+          'startRunDate': new Date(),
+          'finishRunDate': null
         }
       };
-      httpBackend.when('POST', buildUrl).respond(mockBuildJobResponse);
+      httpBackend.when('POST', buildUrl).respond(mockRunBuildJobResponse);
 
       //var mockGetBuildJobResponse = {
       //  'keyCount': {
@@ -101,6 +111,13 @@ describe('Controller: RunBuildJobCtrl', function () {
       //expect(scope.buildLog).toContain("1:hello");
       //expect(scope.buildLog).toContain("2:world");
 
+      expect(scope.model.buildResults).not.toBe(null);
+      expect(scope.model.buildResults['KEY'].length).toEqual(1);
+      expect(scope.model.buildResults['KEY'][0].keyCountTuple.key).toEqual('KEY');
+      expect(scope.model.buildResults['KEY'][0].keyCountTuple.count).toEqual(123);
+      expect(scope.model.buildResults['KEY'][0].buildStatus).toEqual('IN_PROGRESS');
+      expect(scope.model.buildResults['KEY'][0].startRunDate).not.toBe(null);
+      expect(scope.model.buildResults['KEY'][0].finishRunDate).toBe(null);
 
       httpBackend.verifyNoOutstandingExpectation();
       httpBackend.verifyNoOutstandingRequest();
