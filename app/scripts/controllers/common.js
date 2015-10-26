@@ -27,6 +27,15 @@ var app = angular.module('elwoodUiApp')
     return function (keyCount) {
       return keyCount.key + '-' + keyCount.count;
     };
+  }).factory('ClearValidationMessages', function($parse) {
+      return function(model, scope) {
+        angular.forEach(model, function (value) {
+          var validationMessage = $parse(value);
+          validationMessage.assign(scope, '');
+        });
+
+        model = [];
+      };
   }).constant('GetBuildResultsUrl', 'http://localhost:8080/buildResult/:key')
   .factory('GetBuildResultsResource', function($resource, GetBuildResultsUrl) {
     return $resource(GetBuildResultsUrl, {}, {

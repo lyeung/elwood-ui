@@ -74,7 +74,7 @@ angular.module('elwoodUiApp')
       return !$scope.model.projects.length;
     };
   })
-  .controller('BuildJobCtrl', function($scope, BuildJobResource) {
+  .controller('BuildJobCtrl', function($scope, $parse, BuildJobResource, ClearValidationMessages) {
     var newModel = function () {
       return {
         'key': '',
@@ -91,11 +91,26 @@ angular.module('elwoodUiApp')
     };
 
     $scope.model = newModel();
+    $scope.validationMessages = [];
     $scope.saveProjectForm = function () {
+      ClearValidationMessages($scope.validationMessages, $scope);
       BuildJobResource.save($scope.model, function (successResult) {
         console.log(successResult);
+        $scope.model.status = {
+          'success': true,
+          'message': 'Successfully saved changes'
+        }
       }, function (errorResult) {
         console.log(errorResult);
+        angular.forEach(errorResult.data, function(value) {
+          if (value.logref) {
+            var prefix = value.logref.replace('buildJob.', 'buildJobForm.');
+            var expression = prefix + '.$error.validationMessage';
+            $scope.validationMessages.push(expression);
+            var validationMessage = $parse(expression);
+            validationMessage.assign($scope, value.message);
+          }
+        });
       });
     };
   });

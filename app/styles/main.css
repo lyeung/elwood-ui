@@ -113,3 +113,8 @@ table {
   float: right;
   width: 100px;
 }
+
+
+.has-error {
+  color: red;
+}

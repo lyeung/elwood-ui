@@ -29,16 +29,20 @@ describe('Controller: ProjectCtrl', function () {
 
   describe('BuildJobCtrl', function() {
     var BuildJobCtrl,
-      buildJobResource;
+      buildJobResource,
+      clearValidationMessages;
 
     // Initialize the controller and a mock scope
-    beforeEach(inject(function ($controller, $rootScope, $httpBackend, BuildJobResource) {
+    beforeEach(inject(function ($controller, $rootScope, $httpBackend, BuildJobResource, ClearValidationMessages) {
       scope = $rootScope.$new();
       buildJobResource = BuildJobResource;
+      clearValidationMessages = ClearValidationMessages;
       httpBackend = $httpBackend;
+
       BuildJobCtrl = $controller('BuildJobCtrl', {
         $scope: scope,
-        BuildJobResource: buildJobResource
+        BuildJobResource: buildJobResource,
+        ClearValidationMessages: clearValidationMessages
       });
     }));
 
@@ -65,12 +69,21 @@ describe('Controller: ProjectCtrl', function () {
       };
 
       scope.model.key = 'KEY';
+      expect(scope.model.status).toBeUndefined();
+
+      // TODO: rework on this scenario
+      scope.validationMessages = ['error1'];
 
       httpBackend.expectPOST(url).respond(mockData);
       scope.saveProjectForm();
       httpBackend.flush();
 
       expect(scope.model.key).toEqual('KEY');
+      expect(scope.validationMessages).not.toBe(null);
+      //expect(scope.validationMessages.length).toEqual(0);
+
+      expect(scope.model.status.success).toBeTruthy();
+      expect(scope.model.status.message).toEqual("Successfully saved changes");
 
       httpBackend.verifyNoOutstandingExpectation();
       httpBackend.verifyNoOutstandingRequest();
