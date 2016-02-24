@@ -17,16 +17,21 @@
         <!--<br style="clear: left;" />-->
       </div>
       <div ng-repeat="p in model.projects">
+
         <div class="key">{{p.key.key}}&nbsp;</div>
         <div class="name">{{p.name}}&nbsp;</div>
         <div class="description">{{p.description}}&nbsp;</div>
         <div class="build"><a href="#" ng-click="build(p); $event.stopPropagation(); $event.preventDefault();">&#9658&nbsp;</a></div>
         <div ng-repeat="r in model.buildResults[p.key.key]">
-          <!--<div class="key">{{r.keyCountTuple.key}}-{{r.keyCountTuple.count}}&nbsp;</div>-->
-          <div class="key">{{r.keyCountTuple.key}}-{{r.keyCountTuple.count}}&nbsp;</div>
-          <div class="name">{{r.startRunDate | date: 'medium'}}&nbsp;</div>
-          <div class="description">{{r.finishRunDate | date:'medium'}}&nbsp;</div>
-          <div class="build">{{r.buildStatus}}</div>
+          <div class="row">
+            <div class="key">{{r.keyCountTuple.key}}-{{r.keyCountTuple.count}}&nbsp;</div>
+            <div class="name">{{r.startRunDate | date: 'medium'}}&nbsp;</div>
+            <div class="description">{{r.finishRunDate | date:'medium'}}&nbsp;</div>
+            <div class="build">
+              <div elw-build-result-stats status="{{r.buildStatus}}"
+                   key-count="r.keyCountTuple"/>
+            </div>
+          </div>
         </div>
       </div>
       <br style="clear: left;" />

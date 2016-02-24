@@ -1,0 +1,17 @@
+<span ng-show="status==='SUCCEEDED'">
+  &check;
+</span>
+<span ng-show="status==='FAILED'">
+  &cross;
+</span>
+<span ng-show="status==='IN_PROGRESS'">
+  &#126;
+</span>
+<span ng-show="status!=='IN_PROGRESS'">
+  <a href="#" ng-click="getBuildResultStats(keyCount);$event.stopPropagation(); $event.preventDefault();">&#128240;</a>
+</span>
+<div class="stats" ng-show="isShowBuildResultStats(keyCount)">
+  Success: {{buildResultStats[keyCount.key + "-" + keyCount.count].successCount}}
+  Failed: {{buildResultStats[keyCount.key + "-" + keyCount.count].failedCount}}
+  Ignored: {{buildResultStats[keyCount.key + "-" + keyCount.count].ignoredCount}}
+</div>

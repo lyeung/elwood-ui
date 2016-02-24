@@ -30,7 +30,6 @@
  */
 angular.module('elwoodUiApp')
   .constant('BuildJobUrl', 'http://localhost:8080/buildJob/:key')
-  //.constant('RunBuildJobUrl', 'http://localhost:8080/runBuildJob/:key/:count')
   .constant('ProjectsUrl', 'http://localhost:8080/projects/:pageNumber')
   .factory('BuildJobResource', function($resource, BuildJobUrl) {
     return $resource(BuildJobUrl, {}, {
