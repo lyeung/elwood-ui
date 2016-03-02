@@ -62,16 +62,12 @@ describe('Controller: BuildResultStatsCtrl', function () {
     }));
 
     it('should display when status is SUCCEEDED', function() {
-
+      scope.status = 'SUCCEEDED';
 
       expect(scope).toBeDefined();
       expect(scope.toggle).toBeFalsy();
       expect(scope.isShowBuildResultStats(keyCount)).toBeFalsy();
       expect(scope.buildResultStats).toBeUndefined();
-
-      console.log(scope.status);
-      scope.status = 'SUCCEEDED';
-      console.log(scope.status);
 
       httpBackend.when('GET', url).respond(mockData);
       expect(buildResultStatsResource).toBeDefined();
@@ -97,16 +93,12 @@ describe('Controller: BuildResultStatsCtrl', function () {
     });
 
     it('should display when status is FAILED', function() {
-
+      scope.status = 'FAILED';
 
       expect(scope).toBeDefined();
       expect(scope.toggle).toBeFalsy();
       expect(scope.isShowBuildResultStats(keyCount)).toBeFalsy();
       expect(scope.buildResultStats).toBeUndefined();
-
-      console.log(scope.status);
-      scope.status = 'FAILED';
-      console.log(scope.status);
 
       httpBackend.when('GET', url).respond(mockData);
       expect(buildResultStatsResource).toBeDefined();
