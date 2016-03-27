@@ -73,24 +73,52 @@ angular.module('elwoodUiApp')
       return !$scope.model.projects.length;
     };
   })
-  .controller('BuildJobCtrl', function($scope, $parse, BuildJobResource, ClearValidationMessages) {
-    var newModel = function () {
+  .controller('BuildJobCtrl', function($scope, $routeParams, BuildJobResource, ClearValidationMessages) {
+    var newModel = function (data) {
+      if (!data) {
+        return {
+          'key': '',
+          'name': '',
+          'description': '',
+          'buildFile': '',
+          'buildCommand': '',
+          'environmentVars': '',
+          'sourceUrl': '',
+          'identityKey': '',
+          'authenticationType': 'PUBLIC_KEY_PASSPHRASE',
+          'passphrase': '',
+          'editable': true
+        };
+      }
+
       return {
-        'key': '',
-        'name': '',
-        'description': '',
-        'buildFile': '',
-        'buildCommand': '',
-        'environmentVars': '',
-        'sourceUrl': '',
-        'identityKey': '',
-        'authenticationType': 'PUBLIC_KEY_PASSPHRASE',
-        'passphrase': ''
-      };
+        'key': data.key,
+        'name': data.name,
+        'description': data.description,
+        'buildFile': data.buildFile,
+        'buildCommand': data.buildCommand,
+        'environmentVars': data.environmentVars,
+        'sourceUrl': data.sourceUrl,
+        'identityKey': data.identityKey,
+        'authenticationType': data.authenticationType,
+        'passphrase': data.passphrase,
+        'editable': false
+      }
     };
 
     $scope.model = newModel();
     $scope.validationMessages = [];
+
+    var getProject = function(key) {
+      ClearValidationMessages($scope.validationMessages, $scope);
+      BuildJobResource.get({ 'key': key }, function(successResult) {
+        console.log(successResult);
+        $scope.model = newModel(successResult);
+      }, function(errorResult) {
+        console.log(errorResult);
+      });
+    };
+
     $scope.saveProjectForm = function () {
       ClearValidationMessages($scope.validationMessages, $scope);
       BuildJobResource.save($scope.model, function (successResult) {
@@ -112,4 +140,9 @@ angular.module('elwoodUiApp')
         });
       });
     };
+
+    if ($routeParams.key) {
+      console.log('param: ' + $routeParams.key);
+      getProject($routeParams.key);
+    }
   });

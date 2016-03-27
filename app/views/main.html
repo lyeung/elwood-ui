@@ -18,7 +18,7 @@
       </div>
       <div ng-repeat="p in model.projects">
 
-        <div class="key">{{p.key.key}}&nbsp;</div>
+        <div class="key"><a href="#/project/{{p.key.key}}">{{p.key.key}}&nbsp;</a></div>
         <div class="name">{{p.name}}&nbsp;</div>
         <div class="description">{{p.description}}&nbsp;</div>
         <div class="build"><a href="#" ng-click="build(p); $event.stopPropagation(); $event.preventDefault();">&#9658&nbsp;</a></div>

@@ -29,6 +29,11 @@ angular
         controller: 'BuildJobCtrl',
         controllerAs: 'project'
       })
+      .when('/project/:key', {
+        templateUrl: 'views/project.html',
+        controller: 'BuildJobCtrl',
+        controllerAs: 'project'
+      })
       .when('/about', {
         templateUrl: 'views/about.html',
         controller: 'AboutCtrl',
