@@ -1,11 +1,11 @@
 <div>
   <form id="buildJobForm" class="form-horizontal" role="form" novalidate>
 
-    <div class="form-group required">
+    <div class="form-group" ng-class="model.editable ? 'required' : ''">
       <label for="key" class="control-label col-sm-3">Key</label>
       <div class="col-sm-9">
-        <input id="key" class="form-control" ng-model="model.key" type="text" maxlength="10" required>
-        <div class="has-error" ng-show="buildJobForm.key.$error.validationMessage">{{buildJobForm.key.$error.validationMessage}}<br></div>
+        <input id="key" class="form-control" ng-model="model.key" type="text" maxlength="10" ng-required="model.editable" ng-readonly="!model.editable">
+        <div ng-class="model.editable ? 'has-error' : ''" ng-show="buildJobForm.key.$error.validationMessage">{{buildJobForm.key.$error.validationMessage}}<br></div>
       </div>
     </div>
     <div class="form-group required">
