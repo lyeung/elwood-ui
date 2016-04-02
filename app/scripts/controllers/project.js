@@ -73,7 +73,7 @@ angular.module('elwoodUiApp')
       return !$scope.model.projects.length;
     };
   })
-  .controller('BuildJobCtrl', function($scope, $routeParams, BuildJobResource, ClearValidationMessages) {
+  .controller('BuildJobCtrl', function($scope, $parse, $routeParams, BuildJobResource, ClearValidationMessages) {
     var newModel = function (data) {
       if (!data) {
         return {
