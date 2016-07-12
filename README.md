@@ -5,11 +5,11 @@ version 0.12.1.
 
 ### Project Home ###
 
-* https://www.hostedredmine.com/projects/elwood-ui
+* https://github.com/lyeung/elwood-ui/
 
 ### Project Wiki ###
 
-* https://www.hostedredmine.com/projects/elwood-ui/wiki
+* https://github.com/lyeung/elwood-ui/wiki
 
 ### Project Blog ###
 
@@ -17,11 +17,26 @@ version 0.12.1.
 
 ### Issue Management ###
 
-* https://www.hostedredmine.com/projects/elwood-ui/issues
+* https://github.com/lyeung/elwood-ui/issues
+
+## Getting Started
+
+1. Install nvm (see [nvm homepage](https://github.com/creationix/nvm))
+
+2. Install NodeJS version 4.4.7 using nvm
+    * nvm install 4.4.7
+    * nvm use 4.4.7
+
+3. Install NPM Tools
+    * npm install -g grunt-cli
+    * npm install -g bower
+    * npm install -g yo
+    * bower install
+    * npm install
 
 ## Build & development
 
-Run `grunt` for building and `grunt serve` for preview.
+Run `grunt` for building and `grunt serve` to start running the UI.
 
 ## Testing
 
